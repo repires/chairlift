@@ -298,7 +298,7 @@ ci:
 	$(MAKE) build
 	@echo "==> CI mirror passed"
 
-bump: ## tag the next calendar version (YY.MM.N); PRE=alpha.1 for a prerelease
+bump: ## generate a new version with svu
 	@$(MAKE) build
 	@$(MAKE) test
 	@$(MAKE) fmt
@@ -308,7 +308,7 @@ bump: ## tag the next calendar version (YY.MM.N); PRE=alpha.1 for a prerelease
 		exit 1; \
 	fi
 	@echo "Creating new tag..."
-	@version=$$(./scripts/next-version.sh $(PRE)); \
+	@version=$$(svu next); \
 		git tag -a $$version -m "Version $$version"; \
 		echo "Tagged version $$version"; \
 		echo "Pushing tag $$version to origin..."; \

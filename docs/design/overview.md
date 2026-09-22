@@ -1741,18 +1741,8 @@ page_name:
 - **Build**: `make build` builds three binaries: `build/chairlift` (main app), `build/chairlift-updex-helper` (privileged updex helper), and `build/chairlift-ublue-helper` (privileged Bluefin-family helper), all with `CGO_ENABLED=0`
 - **CI mirror**: `make ci` runs every host-independent gate from `.github/workflows/test.yml` in fail-fast order — go.mod tidy check, `go vet`, gofmt check, `golangci-lint`, unit tests (`./internal/...` under `-run "^Test[^I]" -skip "Integration"`), the race detector, and the build. Its build step reproduces CI's `linux/amd64` + `linux/arm64` matrix into `build/ci-linux-<arch>/` before rebuilding natively, so a compile failure on the non-host architecture cannot pass locally. The mill's deep gate (`.mill.toml`) calls this target. Codecov's remote project status additionally rejects coverage regressions greater than one percentage point, with no fixed project or patch target; it cannot be mirrored locally. The runtime-dependent E2E job is deliberately separate: `make e2e` builds all three binaries, executes the application's `--help` path, boots the dry-run GTK window under a private D-Bus/Xvfb session, polls all three readiness markers for at most 30 seconds, requires one second of post-readiness stability, then terminates its private process group and waits for every surviving member of it to exit before Go removes the temporary `HOME` those workers write into, stages the real `make install` layout under a temporary `DESTDIR`, and executes the staged helper binaries' rejection paths. Its Go test package lives at `test/e2e`, imports no puregotk package, and is enforced by that explicit target rather than the `./internal/...` unit-test filter. The readiness markers are a log-line contract — decision record [ADR-0008](../adr/0008-e2e-readiness-is-a-log-marker-contract.md).
 - **Dev build**: `make dev` builds with `CGO_ENABLED=1` and `-race` flag for race detection
-- **Version**: injected at build time into `main.buildVersion` via ldflags. The release build uses `{{ trimprefix .Tag "v" }}`, not `{{ .Version }}` — see the calendar-versioning note below
-- **Calendar versioning**: tags are `vYY.MM.N[-prerelease]` (`v26.09.0`, `v26.09.0-alpha.1`), produced by `scripts/next-version.sh` and tagged by `make bump` (`make bump PRE=alpha.1` for a prerelease). `YY.MM` is the release's calendar slot, matching how the Bluefin images are dated; `N` is the sequence within that month, starting at 0 and shared between releases and prereleases so an alpha cannot reuse a released number. This replaced svu, which cannot express the scheme.
-
-  The leading zero in `MM` is the whole point and is also where the scheme
-  collides with semver. GoReleaser's parser normalises `26.09.0` to `26.9.0`,
-  so `{{ .Version }}` renders without the zero. The binary therefore injects
-  `{{ trimprefix .Tag "v" }}` and the About dialog shows `26.09.0-alpha.1`,
-  while the published deb/rpm/apk filenames show `26.9.0-alpha.1`, because
-  nFPM versions must be semver. **That asymmetry is deliberate.** Making the
-  two agree means either dropping the zero from the tag, which loses the date
-  reading, or feeding nFPM a non-semver version, which the packagers reject.
-  Do not "fix" one side.
+- **Version**: Set via ldflags by goreleaser (`buildVersion`)
+- **Semantic versioning**: Uses [svu](https://github.com/caarlos0/svu) via `make bump`
 - **CI**: GitHub Actions workflows for test and release (`.github/workflows/`);
   the release workflow (`.github/workflows/release.yml`, job `goreleaser`) runs
   GoReleaser OSS with `GITHUB_TOKEN` to publish the tagged commit's artifacts

@@ -30,19 +30,6 @@ The app builds pure-Go (`CGO_ENABLED=0`); the race detector needs CGO.
   the mill's deep gate calls this exact target. Codecov's remote project status
   additionally rejects coverage regressions greater than one percentage point;
   it has no fixed coverage target and cannot be mirrored locally.
-- `make bump` — tags the next calendar version and pushes the tag. Releases
-  are `vYY.MM.N[-prerelease]` (`v26.09.0`, and `make bump PRE=alpha.1` for
-  `v26.09.0-alpha.1`), computed by `scripts/next-version.sh` from the tags
-  already in the calendar slot. This replaced svu, which cannot express the
-  scheme. **The version a user reads and the version in a package filename
-  differ, deliberately.** The leading zero in `MM` is what makes the tag read
-  as a date, and GoReleaser's semver parser normalises `26.09.0` to `26.9.0`,
-  so `.goreleaser.yaml` injects `{{ trimprefix .Tag "v" }}` into
-  `main.buildVersion` rather than `{{ .Version }}`: the About dialog shows
-  `26.09.0-alpha.1` while the deb/rpm/apk are named `26.9.0-alpha.1`, because
-  nFPM versions must be semver. Reconciling the two means either losing the
-  date reading from the tag or handing the packagers a version they reject.
-  Do not "fix" either side.
 - `make e2e` — builds both executables, checks the application's real
   `--help` surface, starts the dry-run GTK window under a private D-Bus/Xvfb
   session, stages `make install`, and executes the installed privileged

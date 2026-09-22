@@ -125,13 +125,6 @@ Choose the package format for your distribution:
 | Fedora/RHEL | `projectbluefin-chairlift-<version>-1.<arch>.rpm` (`x86_64` or `aarch64`) | `sudo dnf install ./<downloaded-filename>` |
 | Alpine | `projectbluefin-chairlift_<version>_<arch>.apk` (`x86_64` or `aarch64`) | `sudo apk add --allow-untrusted ./<downloaded-filename>` |
 
-`<version>` in those filenames is **not** spelled the way the About dialog
-spells it. Releases are tagged on a calendar scheme, `vYY.MM.N`, and the
-leading zero in the month is deliberate — but deb/rpm/apk versions must be
-semver, which normalises `26.09.0` to `26.9.0`. So the About dialog reads
-`26.09.0-alpha.1` while the package file is named `26.9.0-alpha.1`. They are
-the same release.
-
 For a normal system installation, download the full `projectbluefin-chairlift`
 package. It includes the GUI, both privileged helpers
 (`/usr/bin/chairlift-updex-helper` and `/usr/bin/chairlift-ublue-helper`),
